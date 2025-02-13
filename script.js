@@ -22,8 +22,9 @@ class PomodoroTimer {
         this.shortBreakButton.addEventListener('click', () => this.setTime(5));
         this.longBreakButton.addEventListener('click', () => this.setTime(15));
 
-        // Set initial container color
-        document.querySelector('.container').style.backgroundColor = '#ff6b6b';
+        // Set initial container class
+        const container = document.querySelector('.container');
+        container.classList.add('pomodoro-mode');
         
         // Add new properties for color transition
         this.startColor = '#ffffff';
@@ -104,6 +105,19 @@ class PomodoroTimer {
         
         // Reset container to starting color
         document.querySelector('.container').style.backgroundColor = this.startColor;
+
+        // Remove all mode classes
+        const container = document.querySelector('.container');
+        container.classList.remove('pomodoro-mode', 'shortbreak-mode', 'longbreak-mode');
+        
+        // Add appropriate mode class
+        if (minutes === 25) {
+            container.classList.add('pomodoro-mode');
+        } else if (minutes === 5) {
+            container.classList.add('shortbreak-mode');
+        } else if (minutes === 15) {
+            container.classList.add('longbreak-mode');
+        }
     }
 
     updateDisplay() {
