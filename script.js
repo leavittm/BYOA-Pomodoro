@@ -1,37 +1,103 @@
 class PomodoroTimer {
     constructor() {
-        this.timeLeft = 25 * 60; // 25 minutes in seconds
+        // Define all possible modes and their properties
+        this.modes = {
+            pomodoro: {
+                duration: 25, // Change to 25 * 60 for production
+                colors: {
+                    start: '#ffffff',
+                    end: '#ff6b6b'
+                },
+                buttonId: 'pomodoro'
+            },
+            shortBreak: {
+                duration: 5, // Change to 5 * 60 for production
+                colors: {
+                    start: '#ffffff',
+                    end: '#4ecdc4'
+                },
+                buttonId: 'shortBreak'
+            },
+            longBreak: {
+                duration: 15, // Change to 15 * 60 for production
+                colors: {
+                    start: '#ffffff',
+                    end: '#45b7d1'
+                },
+                buttonId: 'longBreak'
+            }
+        };
+
+        // Initialize timer state
+        this.currentMode = 'pomodoro';
+        this.timeLeft = this.modes.pomodoro.duration;
         this.timerId = null;
         this.isRunning = false;
 
-        // Timer elements
+        // Get DOM elements
+        this.container = document.querySelector('.container');
         this.minutesDisplay = document.getElementById('minutes');
         this.secondsDisplay = document.getElementById('seconds');
-        
-        // Buttons
         this.startButton = document.getElementById('start');
         this.resetButton = document.getElementById('reset');
-        this.pomodoroButton = document.getElementById('pomodoro');
-        this.shortBreakButton = document.getElementById('shortBreak');
-        this.longBreakButton = document.getElementById('longBreak');
+        
+        // Set up mode buttons
+        Object.entries(this.modes).forEach(([modeName, modeData]) => {
+            const button = document.getElementById(modeData.buttonId);
+            button.setAttribute('data-mode-button', modeName);
+            button.addEventListener('click', () => this.setMode(modeName));
+        });
 
-        // Event listeners
+        // Set up other event listeners
         this.startButton.addEventListener('click', () => this.toggleTimer());
         this.resetButton.addEventListener('click', () => this.resetTimer());
-        this.pomodoroButton.addEventListener('click', () => this.setTime(25));
-        this.shortBreakButton.addEventListener('click', () => this.setTime(5));
-        this.longBreakButton.addEventListener('click', () => this.setTime(15));
 
-        // Set initial container class
-        const container = document.querySelector('.container');
-        container.classList.add('pomodoro-mode');
+        // Initialize the first mode
+        this.setMode('pomodoro');
+    }
+
+    setMode(modeName) {
+        const mode = this.modes[modeName];
+        if (!mode) return;
+
+        // Update current mode
+        this.currentMode = modeName;
         
-        // Add new properties for color transition
-        this.startColor = '#ffffff';
-        this.endColor = '#ff6b6b';
-        this.totalTime = 25 * 60;
+        // Update container attributes
+        this.container.setAttribute('data-mode', modeName);
+        
+        // Update colors
+        this.startColor = mode.colors.start;
+        this.endColor = mode.colors.end;
+        this.container.style.backgroundColor = this.startColor;
+
+        // Update timer
+        this.timeLeft = mode.duration;
+        this.totalTime = mode.duration;
+        
+        // Update button states
+        Object.keys(this.modes).forEach(name => {
+            const button = document.getElementById(this.modes[name].buttonId);
+            button.classList.toggle('active', name === modeName);
+        });
+
+        // Reset timer state
+        this.pauseTimer();
+        this.isRunning = false;
+        this.startButton.textContent = 'Start';
         
         this.updateDisplay();
+    }
+
+    switchMode() {
+        // Automatically switch between pomodoro and short break
+        const nextMode = this.currentMode === 'pomodoro' ? 'shortBreak' : 'pomodoro';
+        this.setMode(nextMode);
+        
+        // Start the timer and update button state
+        this.startTimer();
+        this.isRunning = true;
+        this.startButton.textContent = 'Pause';  // Keep it as 'Pause' since timer is running
     }
 
     toggleTimer() {
@@ -59,7 +125,8 @@ class PomodoroTimer {
                     document.querySelector('.container').style.backgroundColor = currentColor;
                 } else {
                     this.playAlarm();
-                    this.resetTimer();
+                    // Instead of resetting, switch to the other mode
+                    this.switchMode();
                 }
             }, 1000);
         }
@@ -72,52 +139,18 @@ class PomodoroTimer {
 
     resetTimer() {
         this.pauseTimer();
-        this.timeLeft = this.totalTime;
+        this.timeLeft = this.modes[this.currentMode].duration;
+        this.totalTime = this.modes[this.currentMode].duration;
         this.isRunning = false;
         this.startButton.textContent = 'Start';
         this.updateDisplay();
         // Reset container color
         document.querySelector('.container').style.backgroundColor = this.startColor;
-    }
-
-    setTime(minutes) {
-        this.pauseTimer();
-        this.timeLeft = minutes * 60;
-        this.totalTime = minutes * 60;
-        this.isRunning = false;
-        this.startButton.textContent = 'Start';
-        this.updateDisplay();
         
-        // Update active button and set initial color
-        [this.pomodoroButton, this.shortBreakButton, this.longBreakButton].forEach(button => {
-            button.classList.remove('active');
-        });
-        event.target.classList.add('active');
-
-        // Set the starting color based on mode
-        if (minutes === 25) {
-            this.endColor = '#ff6b6b';  // Pomodoro red
-        } else if (minutes === 5) {
-            this.endColor = '#4ecdc4';  // Short break teal
-        } else {
-            this.endColor = '#45b7d1';  // Long break blue
-        }
-        
-        // Reset container to starting color
-        document.querySelector('.container').style.backgroundColor = this.startColor;
-
-        // Remove all mode classes
+        // Reset mode classes
         const container = document.querySelector('.container');
         container.classList.remove('pomodoro-mode', 'shortbreak-mode', 'longbreak-mode');
-        
-        // Add appropriate mode class
-        if (minutes === 25) {
-            container.classList.add('pomodoro-mode');
-        } else if (minutes === 5) {
-            container.classList.add('shortbreak-mode');
-        } else if (minutes === 15) {
-            container.classList.add('longbreak-mode');
-        }
+        container.classList.add('pomodoro-mode');
     }
 
     updateDisplay() {
