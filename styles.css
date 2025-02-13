@@ -1,0 +1,61 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+.container {
+    text-align: center;
+    background-color: #ffffff;  /* Default Pomodoro color */
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: white;  /* Make text white for better contrast */
+    transition: none;  /* Smooth color transition */
+}
+
+.timer-display {
+    font-size: 4rem;
+    font-weight: bold;
+    margin: 2rem 0;
+    /* Create outline using text-shadow */
+    color: white;
+    text-shadow: 
+       -2px -2px #000,  
+        2px -2px #000,
+        -2px 2px #000,
+        2px 2px #000;
+}
+
+.controls button {
+    font-size: 1.2rem;
+    margin: 0 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+.mode {
+    margin-top: 1rem;
+}
+
+.mode button {
+    margin: 0 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+.active {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+h1 {
+    /* Add text stroke to title as well */
+    -webkit-text-stroke: 1px black;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+} 
