@@ -24,7 +24,8 @@ class PomodoroTimer {
                     start: '#ffffff',
                     end: '#45b7d1'
                 },
-                buttonId: 'longBreak'
+                buttonId: 'longBreak',
+                isCustomizable: true
             }
         };
 
@@ -56,9 +57,17 @@ class PomodoroTimer {
         this.setMode('pomodoro');
     }
 
-    setMode(modeName) {
+    async setMode(modeName) {
         const mode = this.modes[modeName];
         if (!mode) return;
+
+        // Handle custom duration for long break
+        if (modeName === 'longBreak') {
+            const duration = await this.promptForDuration();
+            if (duration) {
+                mode.duration = duration; // Store in seconds
+            }
+        }
 
         // Update current mode
         this.currentMode = modeName;
@@ -184,6 +193,19 @@ class PomodoroTimer {
         const b = Math.round(start.b + (end.b - start.b) * progress);
         
         return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    }
+
+    async promptForDuration() {
+        const input = prompt('Enter break duration (in seconds):', '900');
+        if (input === null) return null; // User clicked cancel
+        
+        const duration = parseInt(input);
+        if (isNaN(duration) || duration <= 0) {
+            alert('Please enter a valid positive number');
+            return null;
+        }
+        
+        return duration;
     }
 }
 
