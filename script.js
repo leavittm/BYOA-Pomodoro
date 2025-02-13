@@ -55,6 +55,10 @@ class PomodoroTimer {
 
         // Initialize the first mode
         this.setMode('pomodoro');
+
+        // In the constructor, after setting up mode buttons
+        const longBreakButton = document.getElementById('longBreak');
+        longBreakButton.textContent = 'Custom Time';
     }
 
     async setMode(modeName) {
@@ -196,16 +200,44 @@ class PomodoroTimer {
     }
 
     async promptForDuration() {
-        const input = prompt('Enter break duration (in seconds):', '900');
-        if (input === null) return null; // User clicked cancel
-        
-        const duration = parseInt(input);
-        if (isNaN(duration) || duration <= 0) {
-            alert('Please enter a valid positive number');
-            return null;
-        }
-        
-        return duration;
+        return new Promise((resolve) => {
+            const modal = document.getElementById('timeModal');
+            const input = document.getElementById('customTime');
+            const confirmBtn = document.getElementById('confirmTime');
+            const cancelBtn = document.getElementById('cancelTime');
+
+            const handleConfirm = () => {
+                const duration = parseInt(input.value);
+                if (isNaN(duration) || duration <= 0) {
+                    alert('Please enter a valid positive number');
+                    return;
+                }
+                modal.style.display = 'none';
+                input.value = '';
+                cleanup();
+                resolve(duration);
+            };
+
+            const handleCancel = () => {
+                modal.style.display = 'none';
+                input.value = '';
+                cleanup();
+                resolve(null);
+            };
+
+            const cleanup = () => {
+                confirmBtn.removeEventListener('click', handleConfirm);
+                cancelBtn.removeEventListener('click', handleCancel);
+            };
+
+            // Set up event listeners
+            confirmBtn.addEventListener('click', handleConfirm);
+            cancelBtn.addEventListener('click', handleCancel);
+
+            // Show modal
+            modal.style.display = 'flex';
+            input.focus();
+        });
     }
 }
 
