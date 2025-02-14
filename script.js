@@ -35,12 +35,20 @@ class PomodoroTimer {
         this.timerId = null;
         this.isRunning = false;
 
+        // Add this after the other properties
+        this.currentTask = '';
+        
         // Get DOM elements
         this.container = document.querySelector('.container');
         this.minutesDisplay = document.getElementById('minutes');
         this.secondsDisplay = document.getElementById('seconds');
         this.startButton = document.getElementById('start');
         this.resetButton = document.getElementById('reset');
+        
+        // Add this after getting other DOM elements
+        this.taskDisplay = document.createElement('div');
+        this.taskDisplay.className = 'current-task';
+        this.container.insertBefore(this.taskDisplay, this.controls);
         
         // Set up mode buttons
         Object.entries(this.modes).forEach(([modeName, modeData]) => {
@@ -124,8 +132,15 @@ class PomodoroTimer {
         this.isRunning = !this.isRunning;
     }
 
-    startTimer() {
+    async startTimer() {
         if (!this.timerId) {
+            // Only prompt for task if we're starting a Pomodoro session
+            if (this.currentMode === 'pomodoro') {
+                const task = await this.promptForTask();
+                this.currentTask = task;
+                this.taskDisplay.textContent = task ? `Current Task: ${task}` : '';
+            }
+
             const startTime = this.timeLeft;
             this.timerId = setInterval(() => {
                 if (this.timeLeft > 0) {
@@ -138,7 +153,6 @@ class PomodoroTimer {
                     document.querySelector('.container').style.backgroundColor = currentColor;
                 } else {
                     this.playAlarm();
-                    // Instead of resetting, switch to the other mode
                     this.switchMode();
                 }
             }, 1000);
@@ -235,6 +249,41 @@ class PomodoroTimer {
             cancelBtn.addEventListener('click', handleCancel);
 
             // Show modal
+            modal.style.display = 'flex';
+            input.focus();
+        });
+    }
+
+    async promptForTask() {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('taskModal');
+            const input = document.getElementById('taskInput');
+            const confirmBtn = document.getElementById('confirmTask');
+            const skipBtn = document.getElementById('skipTask');
+
+            const handleConfirm = () => {
+                const task = input.value.trim();
+                modal.style.display = 'none';
+                input.value = '';
+                cleanup();
+                resolve(task);
+            };
+
+            const handleSkip = () => {
+                modal.style.display = 'none';
+                input.value = '';
+                cleanup();
+                resolve('');
+            };
+
+            const cleanup = () => {
+                confirmBtn.removeEventListener('click', handleConfirm);
+                skipBtn.removeEventListener('click', handleSkip);
+            };
+
+            confirmBtn.addEventListener('click', handleConfirm);
+            skipBtn.addEventListener('click', handleSkip);
+
             modal.style.display = 'flex';
             input.focus();
         });
