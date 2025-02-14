@@ -13,8 +13,11 @@ body {
     background-color: rgba(255, 255, 255, 0.95);
     padding: 3rem;
     border-radius: 24px;
-    min-width: 380px;
+    min-width: min(380px, 90vw);  /* Use min() to prevent overflow */
+    max-width: 90vw;  /* Prevent container from getting too wide */
+    margin: 0 1rem;  /* Add horizontal margin */
     position: relative;
+    box-sizing: border-box;  /* Include padding in width calculations */
 }
 
 /* Mode-specific styles */
@@ -102,6 +105,10 @@ button[data-mode-button="longBreak"].active {
 
 .mode {
     margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;  /* Add gap between wrapped buttons */
 }
 
 h1 {
@@ -210,4 +217,25 @@ h1 {
     border-radius: 12px;
     font-size: 1.1rem;
     color: #2d3436;
+}
+
+/* Add media query for smaller screens */
+@media (max-width: 480px) {
+    .container {
+        padding: 1.5rem 1.5rem;  /* Reduce vertical padding */
+        margin: 1rem;  /* Reduce outer margins */
+    }
+    
+    .timer-display {
+        font-size: 4rem;
+        margin: 1rem 0;  /* Reduce margin around timer */
+    }
+
+    .mode {
+        margin-top: 1rem;  /* Reduce top margin in mobile view */
+    }
+
+    h1 {
+        margin-bottom: 1rem;  /* Reduce heading margin in mobile */
+    }
 } 
